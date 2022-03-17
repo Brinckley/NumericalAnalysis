@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.20)
+project(Lab1_3_Fixed_point_iteration_and_GaussSeidel)
+
+set(CMAKE_CXX_STANDARD 14)
+
+add_executable(Lab1_3_Fixed_point_iteration_and_GaussSeidel main.cpp)
