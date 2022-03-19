@@ -4,7 +4,7 @@
 
 using namespace std;
 
-double const EPS = 0.001;
+double EPS = 0.001;
 
 vector<double> operator-(const vector<double> &left, const vector<double> &right) {
     vector<double> res(left.size());
@@ -201,6 +201,7 @@ private:
 };
 
 /*
+0.001
 4
 21 -6 -9 -4
 -6 20 -4 2
@@ -212,6 +213,7 @@ private:
 
 int main() {
     int n;
+    cin >> EPS;
     cin >> n;
     cout.precision(3);
     Matrix<double> A(n);
