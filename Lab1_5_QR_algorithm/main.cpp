@@ -114,49 +114,54 @@ public:
         return (v >= 0) ? 1 : -1;
     }
 
-    bool fullMatrixCheck(Matrix<T> &am, vector<complex<T>> &old_lambdas) {
+    bool fullMatrixCheck(Matrix<T> &am, vector<complex<T>> &old_lambdas, int& iter) {
         // under diagonal check
         double sum = 0;
-        for(size_t i = 0; i < n; ++i) {
-            for(size_t j = i + 1; j < n; ++j) {
+        for(size_t i = 0; i < n - 1; ++i) { // for real numbers
+            for (size_t j = i + 1; j < n; ++j) {
                 sum += pow(am[i][j], 2);
             }
+            if(sqrt(sum) <= EPS) { // exit condition for real numbers
+                //cout << "first false!" << endl;
+                return false;
+            }
+            sum = 0;
         }
-        if(sqrt(sum) <= EPS)
-            return false;
 
         // complex check
-        vector<complex<T>> new_lambdas;
-        for(size_t j = 0; j < n - 1; ++j) {
-            T a = 1;
-            T b = am[j][j] + am[j + 1][j + 1];
-            T c = - am[j][j] * am[j + 1][j + 1] + am[j][j + 1] * am[j + 1][j];
-            T D = pow(b, 2) - 4 * a * c;
-            complex<T> l1, l2;
-            if (D < ZERO) {
-                l1 = (- b / (2 * a), sqrt(- D) / (2 * a));
-                l2 = (- b / (2 * a), - sqrt(- D) / (2 * a));
+        vector<complex<T>> new_lambdas(n, 0);
+        for(size_t j = 0; j < n; ++j) {
+            if(j < n - 1 && abs(am[j + 1][j]) > EPS) {
+                T a = 1;
+                T b = - am[j][j] - am[j + 1][j + 1];
+                T c = - am[j][j + 1] * am[j + 1][j] + am[j][j] * am[j + 1][j + 1];
+                T D = pow(b, 2) - 4 * a * c;
+                if (D < ZERO) {
+                    complex <T> l1 (- b / (2 * a), sqrt(- D) / (2 * a));
+                    complex <T> l2 (- b / (2 * a), - sqrt(- D) / (2 * a));
+                    new_lambdas[j] = l1;
+                    new_lambdas[j + 1] = l2;
+                    ++j;
+                } else {
+                    new_lambdas[j] = am[j][j];
+                }
             } else {
-                l1 = ((- b + sqrt(D)) / (2 * a), 0);
-                l2 = ((- b - sqrt(D)) / (2 * a), 0);
+                new_lambdas[j] = am[j][j];
             }
-            new_lambdas.push_back(l1);
-            new_lambdas.push_back(l2);
         }
 
         if(old_lambdas.size() != 0) {
             for(size_t i = 0; i < old_lambdas.size(); ++i) {
                 complex<T> delta = new_lambdas[i] - old_lambdas[i];
-                if(abs(delta) > EPS) {
+                if(norm(delta) > EPS) {
                     old_lambdas = new_lambdas;
                     return true;
                 }
             }
         } else {
-            old_lambdas = new_lambdas;
+            old_lambdas = new_lambdas; // nothing yet to compare to
             return true;
         }
-
         return false;
     }
 
@@ -189,22 +194,25 @@ public:
         return res;
     }
 
-    void QRalgorithm(Matrix<T> &a, Matrix<T> &q, Matrix<T> &r, int &iterations) {
+    vector<complex<T>> QRalgorithm(Matrix<T> &a, Matrix<T> &q, Matrix<T> &r, int &iterations) {
         vector<complex<T>> lambdas;
-        while(fullMatrixCheck(a, lambdas)) {
+        while(fullMatrixCheck(a, lambdas, iterations)) {
             iterations++;
             vector<T> v(n, 0);
             r = a;
             q.initializeOne();
             for (size_t i = 0; i < n - 1; ++i) {
+                // I
                 vector <T> v(n, 0);
 
+                // II
                 double sum = 0;
                 for (size_t k = i; k < n; ++k) {
                     sum += pow(r[k][i], 2);
                 }
                 v[i] = r[i][i] + sign(r[i][i]) * sqrt(sum);
 
+                // III
                 for (size_t j = i + 1; j < n; ++j) {
                     v[j] = r[j][i];
                 }
@@ -215,6 +223,7 @@ public:
             }
             a = r * q;
         }
+        return lambdas;
     }
 
 
@@ -228,6 +237,29 @@ private:
  1  2  5
 -8  0 -6
  7 -9 -7
+λ_1≈-11,932 λ_2≈-1,279 λ_3≈7,211
+(-11.932,0)   (7.21055,0)   (-1.27853,0)
+
+0.0001
+ 4
+ 0 5 5 2
+ 1 8 9 4
+ 1 2 8 2
+ 0 6 7 4
+λ_1=1 λ_2≈-0,675 λ_3≈3,474 λ_4≈16,201
+(16.2011,0)   (3.47407,0)   (0.999924,0)   (-0.675075,0)
+
+ 0.0001
+ 4
+ 2 7 -8 6
+ 4 4 0 -7
+ -1 -3 6 3
+ 9 -7 -2 -8
+ λ_1≈-16,026    λ_2≈5,366   λ_3≈7,330+1,880*i    λ_4≈7,330-1,880*i
+(-16.0257,0)   (7.32309,1.85919)   (7.32309,-1.85919)   (5.3795,0)
+
+ https://matrixcalc.org/vectors.html
+
  */
 
 int main() {
@@ -244,38 +276,12 @@ int main() {
     cout << "EPS =   " << EPS << endl;
     Matrix<double> Q(n);
     Matrix<double> R(n);
-    A.QRalgorithm(A, Q, R, iterations);
+    vector<complex<double>> lambdas = A.QRalgorithm(A, Q, R, iterations);
     cout << "Number of iterations:   " << iterations << endl;
-    cout << "Matrix Q:  " << endl;
-    Q.print();
-    cout << "Matrix R:  " << endl;
-    R.print();
-    cout << "Matrix A:  " << endl;
-    A = R * Q;
-    A.print();
     cout << "\nEigen values:   ";
-    for(size_t i = 0; i < n; ++i)
-        cout << A[i][i] << "   ";
+    for(size_t i = 0; i < lambdas.size(); ++i)
+        cout << lambdas[i] << "   ";
     cout << endl;
 
 
 }
-
-/*
-EPS =   1e-05
-Number of iterations:   35
-Matrix Q:
--1 -1.1214e-06 0
-1.1214e-06 -1 0
-0 0 1
-Matrix R:
-11.932 6.01834 2.83583
-0 -7.21055 8.29081
-0 0 -1.27853
-Matrix A:
--11.932 -6.01836 2.83583
--8.08589e-06 7.21055 8.29081
-0 0 -1.27853
-
-Eigen values:   -11.932   7.21055   -1.27853
- */
