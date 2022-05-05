@@ -35,11 +35,8 @@ static double dphi(double x) {
 }
 
 static double Iteration(double l, double r, int &iter) {
-    double q = abs(dphi(r));
-    //double q = 0.9999;
+    double q = min(max(abs(dphi(l)), abs(dphi(r))), 1 - EPS);
     double q_ = q / (1 - q);
-    //cout << "Q:  " << q << endl;
-    //cout << "Q_: " << q_ << endl;
 
     double x_0 = 0;
     double x_k1 = l;
@@ -47,7 +44,6 @@ static double Iteration(double l, double r, int &iter) {
         x_0 = x_k1;
         iter++;
         x_k1 = phi(x_0);;
-        //cout << dphi(x_k1) << " : " << dphi(x_0) << endl;
     } while (EPS < q_ * abs(x_k1 - x_0));
     return x_k1;
 }
@@ -79,3 +75,4 @@ Iter number:  2
 Solution:  -1.16825
 Iter number:  2
 Solution:  -1.16917
+ */
