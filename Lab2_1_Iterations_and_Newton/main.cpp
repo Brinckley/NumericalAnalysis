@@ -35,7 +35,8 @@ static double dphi(double x) {
 }
 
 static double Iteration(double l, double r, int &iter) {
-    double q = min(max(abs(dphi(l)), abs(dphi(r))), 1 - EPS);
+    // graphic check -> phi ∈ [l, r]
+    double q = min(max(abs(dphi(l)), abs(dphi(r))), 1 - EPS); // monotonous!!!! for my max is right value
     double q_ = q / (1 - q);
 
     double x_0 = 0;
