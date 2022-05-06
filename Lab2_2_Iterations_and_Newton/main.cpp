@@ -11,11 +11,12 @@
 
 
 int main() {
-    double EPS = 0.001;
+    double EPS = 0.00001;
     int iter = 0;
     //cin >> EPS;
     system_2l2_worker<double> solN(EPS);
-    pair<double, double> sols = solN.newtonSolver(0.4, (M_PI / 5), iter);
-    cout << "Newton method answers: x1 = "<< sols.first << ", x2 = " << sols.second << ". Iteration number: " << iter <<endl;
+    //pair<double, double> sols = solN.newtonSolverSimple(0.4, (M_PI / 5), iter);
+    vector<double> sols = solN.newtonSolver(vector<double>{0.4, (M_PI / 5)}, iter);
+    cout << "Newton method answers: x1 = "<< sols[0] << ", x2 = " << sols[1] << ". Iteration number: " << iter <<endl;
 
 }
