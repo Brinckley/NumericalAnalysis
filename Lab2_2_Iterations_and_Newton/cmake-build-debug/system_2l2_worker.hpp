@@ -59,8 +59,8 @@ public:
         T q = -1;
         q = max(q, abs(dphi12(r1) * dphi21(l1)));
         q = max(q, abs(dphi12(r2) * dphi21(l1)));
-        q = max(q, abs(dphi12(r1) * dphi21(l1)));
-        q = max(q, abs(dphi12(r2) * dphi21(l1)));
+        q = max(q, abs(dphi12(r1) * dphi21(l2)));
+        q = max(q, abs(dphi12(r2) * dphi21(l2)));
         T q_ = q / (1 - q);
 
         T x1_k, x2_k;
