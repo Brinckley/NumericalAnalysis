@@ -14,26 +14,26 @@ public:
     spline(vector<double> &x, vector<double> &y) {
         this->x = x;
         this->y = y;
-        n = x.size() - 1;
-        a.resize(n + 1);
-        b.resize(n + 1);
-        c.resize(n + 1);
-        d.resize(n + 1);
+        n = x.size();
+        a.resize(n);
+        b.resize(n);
+        c.resize(n);
+        d.resize(n);
     }
 
     void builder() {
-        vector<double> h(n + 1);       // h = xi - xi-1
-        for (int i = 1; i <= n; ++i) {
+        vector<double> h(n);       // h = xi - xi-1
+        for (int i = 1; i < n; ++i) {
             h[i] = x[i] - x[i - 1];
         }
 
         // solving for c
-        vector<double> ts_a(n - 1);
-        vector<double> ts_b(n - 1);
-        vector<double> ts_c(n - 1);
-        vector<double> ts_d(n - 1);
+        vector<double> ts_a(n - 2);
+        vector<double> ts_b(n - 2);
+        vector<double> ts_c(n - 2);
+        vector<double> ts_d(n - 2);
 
-        for (int i = 2; i <= n; ++i) {     // for i 2...n - 1
+        for (int i = 2; i < n; ++i) {     // for i 2...n - 1
             ts_a[i - 2] = h[i - 1];
             ts_b[i - 2] = 2.0 * (h[i - 1] + h[i]);
             ts_c[i - 2] = h[i];
@@ -44,7 +44,7 @@ public:
         TridiagonalWorker<double> tridiagonalWorker(ts_a, ts_b, ts_c);         // system like 3.13
 
         vector<double> solution_c = tridiagonalWorker.TridiagonalSolver(ts_d);
-        for (int i = 2; i <= n; ++i) {
+        for (int i = 2; i < n; ++i) {
             c[i] = solution_c[i - 2];
             a[i] = y[i - 1];
         }
@@ -55,13 +55,13 @@ public:
 
         // last condition
         c[1] = 0.0;
-        b[n] = (y[n] - y[n - 1]) / h[n] - (2.0 / 3.0) * h[n] * c[n];
-        d[n] = - c[n] / (3 * h[n]);
+        b[n - 1] = (y[n - 1] - y[n - 2]) / h[n - 1] - (2.0 / 3.0) * h[n - 1] * c[n - 1];
+        d[n - 1] = - c[n - 1] / (3 * h[n - 1]);
     }
 
     double solver(double _x) {
-        for (size_t i = 1; i <= n; ++i) {
-            if (x[i - 1] <= _x and _x <= x[i]) {
+        for (size_t i = 1; i < n; ++i) {
+            if (x[i - 1] <= _x && _x <= x[i]) {
                 double x1 = _x - x[i - 1];
                 double x2 = x1 * x1;
                 double x3 = x2 * x1;
