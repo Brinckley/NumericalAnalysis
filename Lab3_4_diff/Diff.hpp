@@ -1,7 +1,3 @@
-//
-// Created by alex on 20.08.22.
-//
-
 #ifndef LAB3_4_DIFF_DIFF_HPP
 #define LAB3_4_DIFF_DIFF_HPP
 
@@ -27,10 +23,10 @@ public:
         }
 
         return
-        (y[x_index + 1] - y[x_index + 0]) / (x[x_index + 1] - x[x_index + 0])
+        (y[x_index + 1] - y[x_index]) / (x[x_index + 1] - x[x_index])
         +
         ((y[x_index + 2] - y[x_index + 1]) / (x[x_index + 2] - x[x_index + 1])
-        - (y[x_index + 1] - y[x_index + 0]) / (x[x_index + 1] - x[x_index + 0]))
+        - (y[x_index + 1] - y[x_index]) / (x[x_index + 1] - x[x_index]))
         * (2.0 * x_ - x[x_index] - x[x_index + 1])
         / (x[x_index + 2] - x[x_index]);
     }
